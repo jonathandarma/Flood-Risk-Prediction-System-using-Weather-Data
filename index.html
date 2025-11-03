@@ -213,6 +213,77 @@
                 resultDiv.classList.add(riskClass);
             }, 1000);
         }
-    </script>
+    <script>
+    // URL endpoint server Flask
+    const API_ENDPOINT = 'http://127.0.0.1:5000/predict'; 
+
+    async function runMathematicalModel() {
+        // 1. Ambil nilai input
+        const rainfall = parseFloat(document.getElementById('rainfall').value);
+        const temp = parseFloat(document.getElementById('temp').value); // Tidak digunakan di backend, tapi dikumpulkan
+        const humidity = parseFloat(document.getElementById('humidity').value);
+        const elevation = parseFloat(document.getElementById('elevation').value);
+        const resultDiv = document.getElementById('prediction-result');
+
+        resultDiv.className = '';
+        resultDiv.textContent = 'Memproses data ke server AI...';
+
+        if (isNaN(rainfall) || isNaN(humidity) || isNaN(elevation)) {
+            resultDiv.textContent = 'Mohon masukkan semua data cuaca yang valid.';
+            resultDiv.classList.add('risk-medium');
+            return;
+        }
+
+        // 2. Kirim data ke Flask Backend
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // Mengirim data cuaca yang dibutuhkan model
+                body: JSON.stringify({
+                    rainfall: rainfall,
+                    humidity: humidity,
+                    elevation: elevation
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.status !== 'success') {
+                resultDiv.textContent = `Error: ${data.error}`;
+                resultDiv.classList.add('risk-high');
+                return;
+            }
+
+            // 3. Tampilkan Hasil dari Backend
+            const riskLevel = data.risk_level;
+            const probability = data.probability;
+            
+            let riskClass = '';
+            if (riskLevel === 'HIGH') {
+                riskClass = 'risk-high';
+            } else if (riskLevel === 'MEDIUM') {
+                riskClass = 'risk-medium';
+            } else {
+                riskClass = 'risk-low';
+            }
+            
+            const resultText = `PROBABILITAS: ${probability}% | RISIKO: ${riskLevel}`;
+
+            // Tambahkan penundaan visual untuk demo
+            setTimeout(() => {
+                resultDiv.textContent = resultText;
+                resultDiv.classList.add(riskClass);
+            }, 500);
+
+        } catch (error) {
+            console.error('Fetch error:', error);
+            resultDiv.textContent = 'ERROR KONEKSI: Server AI (Python) tidak aktif atau terjadi kesalahan jaringan.';
+            resultDiv.classList.add('risk-high');
+        }
+    }
+</script>
 </body>
 </html>
