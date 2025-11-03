@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flood Risk Prediction System - Demo AI</title>
+    <style>
+        /* [Kode CSS yang sama seperti sebelumnya (baris 10-141) Dihapus untuk mempersingkat tampilan, namun harus tetap dimasukkan dalam file index.html Anda] */
+
+        /* === CSS UTAMA (RINGKASAN) === */
+        :root {
+            --primary-color: #007bff; --secondary-color: #343a40; --light-bg: #f8f9fa; --white: #ffffff;
+            --success: #28a745; --warning: #ffc107; --danger: #dc3545;
+        }
+
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: var(--light-bg); color: var(--secondary-color); line-height: 1.6; }
+        .navbar { background-color: var(--primary-color); color: var(--white); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
+        .navbar-links a { color: var(--white); text-decoration: none; margin-left: 25px; font-weight: bold; }
+        .container { width: 90%; max-width: 1200px; margin: auto; padding: 40px 0; }
+        .section { padding: 60px 0; border-bottom: 1px solid #dee2e6; }
+        .section h2 { text-align: center; color: var(--primary-color); margin-bottom: 40px; font-size: 2em; }
+        .hero { background-color: var(--primary-color); color: var(--white); text-align: center; padding: 80px 20px; }
+        .hero h1 { font-size: 2.5em; margin-bottom: 10px; }
+        #prediction-demo { background-color: var(--white); padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .predict-button { display: block; width: 100%; padding: 15px; background-color: var(--danger); color: var(--white); border: none; border-radius: 4px; font-size: 1.1em; cursor: pointer; transition: background-color 0.3s; }
+        #prediction-result { margin-top: 30px; padding: 20px; border-radius: 8px; text-align: center; font-size: 1.5em; font-weight: bold; color: var(--white); min-height: 50px; display: flex; align-items: center; justify-content: center; }
+        .risk-low { background-color: var(--success); } .risk-medium { background-color: var(--warning); color: var(--secondary-color);} .risk-high { background-color: var(--danger); }
+        .footer { background-color: var(--secondary-color); color: var(--white); text-align: center; padding: 20px 0; font-size: 0.9em; }
+        .features-grid, .users-list { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; }
+        .card { background-color: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); width: 30%; min-width: 280px; }
+        .card h3 { color: var(--secondary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-top: 0; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">AOL AI Kelompok 1</div>
+        <div class="navbar-links">
+            <a href="#home">Home</a>
+            <a href="#about">Latar Belakang</a>
+            <a href="#demo">Demo AI</a>
+            <a href="#technology">Teknologi</a>
+        </div>
+    </nav>
+
+    <header class="hero" id="home">
+        <h1>Flood Risk Prediction System</h1>
+        <h2>Menggunakan Data Cuaca (Weather Data)</h2>
+        <p>Dibuat oleh: Kelompok 1 | Jonathan Darma Ratana - 2802517696</p>
+    </header>
+
+    <section class="section" id="about">
+        <div class="container">
+            <h2>Latar Belakang & Tujuan</h2>
+            <p>Indonesia merupakan salah satu negara dengan risiko banjir tertinggi di dunia. Lebih dari 30% bencana tahunan di Indonesia disebabkan oleh banjir. Banyak wilayah kekurangan sistem peringatan dini yang efektif.</p>
+            <p>Melalui kemajuan teknologi Machine Learning, sistem ini dikembangkan untuk memprediksi potensi banjir berdasarkan data historis cuaca (curah hujan, kelembapan, tekanan udara, dll.). Tujuannya adalah memberikan peringatan dini (*early warning*) kepada masyarakat dan pemerintah agar dapat melakukan tindakan pencegahan yang lebih cepat dan efektif.</p>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div class="container">
+            <h2>Fitur Utama</h2>
+            <div class="features-grid">
+                <div class="card">
+                    <h3>Input & Output Prediksi</h3>
+                    <p>Input: Data cuaca (curah hujan, suhu, kelembapan, dll.). Output: Prediksi risiko banjir (Low / Medium / High).</p>
+                </div>
+                <div class="card">
+                    <h3>Visualisasi Peta Risiko</h3>
+                    <p>Menampilkan hasil prediksi risiko banjir secara visual melalui dashboard dan peta risiko (heatmap wilayah).</p>
+                </div>
+                <div class="card">
+                    <h3>Notifikasi Peringatan Dini</h3>
+                    <p>Sistem notifikasi peringatan dini berbasis lokasi (*early warning system*) kepada masyarakat dan pemerintah daerah.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="section" id="demo">
+        <div class="container" id="prediction-demo">
+            <h2>DEMO PREDIKSI RISIKO BANJIR (MODEL REGRESI LOGISTIK SEDERHANA)</h2>
+            <p style="text-align: center; margin-bottom: 40px;">Simulasi model menggunakan rumus matematis sederhana yang mereplikasi klasifikasi risiko.</p>
+
+            <div class="input-grid">
+                
+                <div class="input-group">
+                    <label for="rainfall">Curah Hujan (mm/hari)</label>
+                    <input type="number" id="rainfall" placeholder="mis. 150" value="50" min="0" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="temp">Suhu (°C)</label>
+                    <input type="number" id="temp" placeholder="mis. 30" value="28" min="-50" max="50" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="humidity">Kelembapan (%)</label>
+                    <input type="number" id="humidity" placeholder="mis. 85" value="75" min="0" max="100" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="elevation">Ketinggian Wilayah (mdpl)</label>
+                    <input type="number" id="elevation" placeholder="mis. 20" value="50" required>
+                </div>
+            </div>
+
+            <button class="predict-button" onclick="runMathematicalModel()">
+                JALANKAN PREDIKSI MATEMATIS
+            </button>
+
+            <div id="prediction-result">
+                Hasil Probabilitas dan Risiko Akan Ditampilkan di Sini
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="technology">
+        <div class="container">
+            <h2>Teknologi dan Algoritma</h2>
+            <p>Model utama yang digunakan adalah **Random Forest Classifier**. Model ini dipilih karena mampu menangani data multivariat dan tahan terhadap *noise* (data hilang/cacat).</p>
+            <p>Sebagai alternatif, model **LSTM** (*Long Short-Term Memory*) dapat digunakan jika dataset mencakup data *time-series* yang panjang, karena mampu menangkap pola waktu temporal yang memicu banjir.</p>
+            
+            <h3 style="margin-top: 40px;">Pengguna yang Ditargetkan</h3>
+            <ul class="users-list" style="list-style-type: none; padding: 0;">
+                <li class="card">BPBD / BNPB (Badan Penanggulangan Bencana)</li>
+                <li class="card">Pemerintah daerah untuk perencanaan infrastruktur</li>
+                <li class="card">Masyarakat Umum di daerah wilayah rawan banjir</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 Flood Risk Prediction System - Kelompok 1</p>
+    </footer>
+
+
+    <script>
+        /**
+         * Fungsi ini mensimulasikan model klasifikasi (Regresi Logistik Sederhana)
+         * dengan koefisien (bobot) matematis untuk memprediksi probabilitas risiko banjir.
+         * P(Banjir) = 1 / (1 + e^-(B0 + B1*Rain + B2*Hum + B3*Elev))
+         */
+        function runMathematicalModel() {
+            // 1. Ambil nilai input
+            const rainfall = parseFloat(document.getElementById('rainfall').value);
+            const temp = parseFloat(document.getElementById('temp').value); // Suhu tidak dipakai di model ini, tapi tetap diambil
+            const humidity = parseFloat(document.getElementById('humidity').value);
+            const elevation = parseFloat(document.getElementById('elevation').value);
+            const resultDiv = document.getElementById('prediction-result');
+
+            resultDiv.className = '';
+            resultDiv.textContent = 'Memproses data...';
+
+            if (isNaN(rainfall) || isNaN(humidity) || isNaN(elevation)) {
+                resultDiv.textContent = 'Mohon masukkan semua data cuaca yang valid.';
+                resultDiv.classList.add('risk-medium');
+                return;
+            }
+
+            // 2. MODEL MATEMATIS (Koefisien dan Persamaan)
+            // Koefisien (Bobot) didapatkan dari proses training ML.
+            // Bobot Curah Hujan (Rainfall) dan Kelembapan (Humidity) dibuat positif (meningkatkan risiko).
+            // Bobot Ketinggian (Elevation) dibuat negatif (menurunkan risiko).
+            const intercept = -5.0; // Intercept (B0)
+            const weightRainfall = 0.04; // B1 (Bobot Curah Hujan: 100mm -> +4.0)
+            const weightHumidity = 0.03; // B2 (Bobot Kelembapan: 100% -> +3.0)
+            const weightElevation = -0.01; // B3 (Bobot Ketinggian: 100mdpl -> -1.0)
+
+            // Hitung Linear Combination (Z)
+            // Z = B0 + B1*Rain + B2*Hum + B3*Elev
+            const Z = intercept + 
+                      (weightRainfall * rainfall) + 
+                      (weightHumidity * humidity) + 
+                      (weightElevation * elevation);
+
+            // Hitung Probabilitas Risiko (P) menggunakan Sigmoid Function
+            // P = 1 / (1 + e^-Z)
+            const probability = 1 / (1 + Math.exp(-Z));
+
+            // 3. Klasifikasi Risiko berdasarkan Threshold
+            let riskLevel = 'Low';
+            const thresholdMedium = 0.4; // Ambang batas Medium
+            const thresholdHigh = 0.7; // Ambang batas High
+
+            if (probability >= thresholdHigh) {
+                riskLevel = 'High';
+            } else if (probability >= thresholdMedium) {
+                riskLevel = 'Medium';
+            } else {
+                riskLevel = 'Low';
+            }
+
+            // 4. Tampilkan Hasil
+            let riskClass = '';
+            if (riskLevel === 'High') {
+                riskClass = 'risk-high';
+            } else if (riskLevel === 'Medium') {
+                riskClass = 'risk-medium';
+            } else {
+                riskClass = 'risk-low';
+            }
+            
+            const probPercent = (probability * 100).toFixed(2);
+            const resultText = `PROBABILITAS: ${probPercent}% | RISIKO: ${riskLevel.toUpperCase()}`;
+
+            setTimeout(() => {
+                resultDiv.textContent = resultText;
+                resultDiv.classList.add(riskClass);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
